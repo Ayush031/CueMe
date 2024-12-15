@@ -9,10 +9,18 @@ const UpvoteSchema = z.object({
 
 export async function POST(req: NextRequest) {
     const session = await getServerSession();
+    console.log(session);
     // TODO: replace with id here
+    if (!session?.user?.email) {
+        return NextResponse.json({
+            message: 'unauthenticated session'
+        }, {
+            status: 403
+        })
+    }
     const user = await prismaClient.user.findFirst({
         where: {
-            email: session?.user?.email ?? ""
+            email: session?.user?.email
         }
     });
     if (!user) {
