@@ -2,15 +2,12 @@ import { prismaClient } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod";
 
-
 const CreatorSchema = z.object({
     creatorId: z.string(),
     url: z.string()
 })
 
 const YT_REGEX = new RegExp(`^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}$`)
-
-
 
 export async function POST(req: NextRequest) {
     try {
