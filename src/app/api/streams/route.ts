@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
             status: 411
         })
     }
-    const streams = await prismaClient.stream.findMany({
+    const [streams, activeStream] = await Promise.all([await prismaClient.stream.findMany({
         where: {
             userId: creatorId
         },
@@ -148,13 +148,22 @@ export async function GET(req: NextRequest) {
                 }
             }
         }
-    })
+    }),
+    await prismaClient.currentStream.findFirst({
+        where: {
+            userId: creatorId
+        },
+        include: {
+            stream: true
+        }
+    })])
 
     return NextResponse.json({
         streams: streams.map(({ _count, ...rest }) => ({
             ...rest,
             upvotes: _count.upvotes, // to reduce the count to root level
             hasUpvoted: rest.upvotes.length ? true : false
-        }))
+        })),
+        activeStream
     });
 }
