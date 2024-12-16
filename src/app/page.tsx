@@ -2,14 +2,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AppBar } from "@/components/AppBar";
-import { Redirect } from "@/components/Redirect";
+// import { Redirect } from "@/components/Redirect";
 import { PlaySquare, Layers, Plus } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <AppBar />
-      <Redirect />
+      {/* <Redirect /> */}
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
@@ -23,7 +23,7 @@ export default function LandingPage() {
                   in your perfect sequence.
                 </p>
               </div>
-              <div className="space-x-4">
+              <div className="space-x-4">               
                 <Button>Get Started</Button>
                 <Button variant="outline">Learn More</Button>
               </div>

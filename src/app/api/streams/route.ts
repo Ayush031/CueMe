@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
                 // smlImg: thumbnails.length > 1 ? thumbnails[thumbnails.length - 2].url : thumbnails[thumbnails.length - 1].url ?? "https://img.freepik.com/free-photo/cute-cat-spending-time-indoors_23-2150649172.jpg?t=st=1734280662~exp=1734284262~hmac=6fea58159e5df9f17cd4393c7aade9bf0abd63fdc9e1f263e2c69be607ef433e&w=1060",
                 // bigImg: thumbnails[thumbnails.length - 1].url ?? "https://img.freepik.com/free-photo/cute-cat-spending-time-indoors_23-2150649172.jpg?t=st=1734280662~exp=1734284262~hmac=6fea58159e5df9f17cd4393c7aade9bf0abd63fdc9e1f263e2c69be607ef433e&w=1060"
                 smlImg: videoDetails.thumbnail_url,
-                bigImg: videoDetails.thumbnail_url
+                bigImg: videoDetails.thumbnail_url,
             }
         });
 
@@ -134,7 +134,8 @@ export async function GET(req: NextRequest) {
     }
     const [streams, activeStream] = await Promise.all([await prismaClient.stream.findMany({
         where: {
-            userId: creatorId
+            userId: creatorId,
+            played: false
         },
         include: {
             _count: { // add a key count 

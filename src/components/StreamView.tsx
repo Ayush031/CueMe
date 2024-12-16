@@ -9,20 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { ShareButton } from "@/components/ShareButton";
 import { Play, ChevronUpCircle, ChevronDownCircle } from "lucide-react";
-
-interface Video {
-  id: string;
-  title: string;
-  upvotes: number;
-  smlImg: string;
-  bigImg: string;
-  hasUpvoted: boolean;
-}
+import YouTubePlayer from "./YoutubePlayer";
+import { Video } from "@/app/lib/types";
 
 const REFRESH_INTERVAL_MS = 3000;
 
-export default function StreamView({ creatorId }: { creatorId: string }) {
-  const [currentVideo, setCurrentVideo] = useState<string | null>(null);
+export default function StreamView({
+  creatorId,
+  playVideo = false,
+}: {
+  creatorId: string;
+  playVideo: boolean;
+}) {
+  const [currentVideo, setCurrentVideo] = useState<Video>();
   const [videoQueue, setVideoQueue] = useState<Video[]>([]);
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
@@ -41,6 +40,12 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
     setNewVideoUrl(url);
     const videoId = extractVideoId(url);
     setPreviewVideoId(videoId);
+  };
+  //@ts-expect-error ignore
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
   };
 
   const handleSubmit = async () => {
@@ -122,20 +127,32 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
     }
   };
 
-  const playNext = () => {
+  const playNext = async () => {
     if (videoQueue.length > 0) {
-      setCurrentVideo(videoQueue[0].id);
-      setVideoQueue((prev) => prev.slice(1));
+      await axios.get("/api/streams/next").then((res) => {
+        console.log(res);
+        setCurrentVideo(res.data.stream);
+        // setVideoQueue((prev) => prev.slice(1));
+      });
     }
   };
 
   const refreshStreams = async () => {
     try {
       const res = await axios.get(`/api/streams/?creatorId=${creatorId}`);
-      const userStreams = res?.data?.streams;
-      if (Array.isArray(userStreams)) {
-        setVideoQueue(userStreams.sort((a, b) => b.upvotes - a.upvotes));
+      const data = await res?.data;
+      if (Array.isArray(data.streams)) {
+        setVideoQueue(
+          // @ts-expect-error ignore
+          data.streams.sort((a, b) => b.upvotes - a.upvotes)
+        );
       }
+      setCurrentVideo((video) => {
+        if (video?.id === data?.activeStream?.stream?.id) {
+          return video;
+        }
+        return data.activeStream.stream;
+      });
     } catch (error) {
       console.error("Error refreshing streams:", error);
     }
@@ -156,25 +173,41 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
 
       <div className="flex justify-between gap-x-20 mb-8">
         {/* Current Video Player */}
-        <div className="basis-1/2">
+        {/* <div className="basis-1/2">
           <h2 className="text-xl font-semibold mb-2">Now Playing</h2>
           {currentVideo ? (
             <div className="aspect-video">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${currentVideo}?autoplay=1`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              {playVideo ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${currentVideo.extractedId}?autoplay=1&mute=1`}
+                  allow="autoplay"
+                  title="Video"
+                  style={{ aspectRatio: "16/9", border: "none" }}
+                />
+              ) : (
+                <>
+                  <img src={currentVideo.bigImg} alt="thumbnail" />
+                  <h2>{currentVideo.title}</h2>
+                </>
+              )}
             </div>
           ) : (
             <div className="min-h-10 bg-gray-100 flex items-center justify-center rounded">
               <p className="text-gray-500">No video playing</p>
             </div>
           )}
+        </div> */}
+        <div className="basis-1/2">
+          <h2 className="text-xl font-semibold mb-2">Now Playing</h2>
+          <YouTubePlayer
+            //@ts-expect-error ignore
+            currentVideo={currentVideo}
+            playVideo={playVideo}
+            onVideoEnd={playNext}
+          />
         </div>
-
         {/* Video Submission */}
         <div className="basis-1/2 h-full">
           <h2 className="text-xl font-semibold mb-2">Submit a Song</h2>
@@ -185,6 +218,7 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
               value={newVideoUrl}
               onChange={handleUrlChange}
               disabled={isLoading}
+              onKeyDown={handleKeyDown}
             />
             <Button
               onClick={handleSubmit}
@@ -211,7 +245,7 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
       <div>
         <div className="flex items-center justify-between mb-3.5">
           <h2 className="text-xl mb-1 font-semibold">Upcoming Songs</h2>
-          {videoQueue.length > 0 && (
+          {videoQueue.length > 0 && playVideo && (
             <Button className="mt4" onClick={playNext}>
               <Play className="h-4 w-4 mr-2" />
               Play Next
