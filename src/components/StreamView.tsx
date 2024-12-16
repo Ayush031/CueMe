@@ -154,60 +154,70 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
         <ShareButton creatorId={creatorId} />
       </div>
 
-      {/* Current Video Player */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Now Playing</h2>
-        {currentVideo ? (
-          <div className="aspect-video">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${currentVideo}?autoplay=1`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        ) : (
-          <div className="h-20 bg-gray-100 flex items-center justify-center rounded">
-            <p className="text-gray-500">No video playing</p>
-          </div>
-        )}
-      </div>
-
-      {/* Video Submission */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Submit a Song</h2>
-        <div className="flex gap-2 mb-2">
-          <Input
-            type="text"
-            placeholder="Enter YouTube URL"
-            value={newVideoUrl}
-            onChange={handleUrlChange}
-            disabled={isLoading}
-          />
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading || !previewVideoId}
-          >
-            {isLoading ? "Submitting..." : "Submit"}
-          </Button>
+      <div className="flex justify-between gap-x-20 mb-8">
+        {/* Current Video Player */}
+        <div className="basis-1/2">
+          <h2 className="text-xl font-semibold mb-2">Now Playing</h2>
+          {currentVideo ? (
+            <div className="aspect-video">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${currentVideo}?autoplay=1`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <div className="min-h-10 bg-gray-100 flex items-center justify-center rounded">
+              <p className="text-gray-500">No video playing</p>
+            </div>
+          )}
         </div>
-        {previewVideoId && (
-          <div className="aspect-video max-w-sm">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${previewVideoId}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+
+        {/* Video Submission */}
+        <div className="basis-1/2 h-full">
+          <h2 className="text-xl font-semibold mb-2">Submit a Song</h2>
+          <div className="flex gap-2 mb-2">
+            <Input
+              type="text"
+              placeholder="Enter YouTube URL"
+              value={newVideoUrl}
+              onChange={handleUrlChange}
+              disabled={isLoading}
             />
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading || !previewVideoId}
+            >
+              {isLoading ? "Submitting..." : "Submit"}
+            </Button>
           </div>
-        )}
+          {previewVideoId && (
+            <div className="aspect-video max-w-sm">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${previewVideoId}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Video Queue */}
       <div>
-        <h2 className="text-xl font-semibold mb-2">Upcoming Songs</h2>
+        <div className="flex items-center justify-between mb-3.5">
+          <h2 className="text-xl mb-1 font-semibold">Upcoming Songs</h2>
+          {videoQueue.length > 0 && (
+            <Button className="mt4" onClick={playNext}>
+              <Play className="h-4 w-4 mr-2" />
+              Play Next
+            </Button>
+          )}
+        </div>
         {videoQueue.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No songs in queue</p>
         ) : (
@@ -243,12 +253,6 @@ export default function StreamView({ creatorId }: { creatorId: string }) {
               </li>
             ))}
           </ul>
-        )}
-        {videoQueue.length > 0 && (
-          <Button className="mt-4" onClick={playNext}>
-            <Play className="h-4 w-4 mr-2" />
-            Play Next
-          </Button>
         )}
       </div>
       <Toaster />

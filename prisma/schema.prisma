@@ -8,26 +8,35 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  email    String   @unique
-  provider Provider
+  id            String          @id @default(uuid())
+  email         String          @unique
+  provider      Provider
   // role     Role
-  streams  Stream[]
-  upvotes  Upvote[]
+  streams       Stream[]
+  upvotes       Upvote[]
+  CurrentStream CurrentStream[]
 }
 
 model Stream {
-  id          String     @id @default(uuid())
-  type        StreamType
-  active      Boolean    @default(true)
-  url         String
-  extractedId String
-  title       String
-  smlImg      String
-  bigImg      String
-  upvotes     Upvote[]
-  userId      String
-  user        User       @relation(fields: [userId], references: [id])
+  id            String         @id @default(uuid())
+  type          StreamType
+  active        Boolean        @default(true)
+  url           String
+  extractedId   String
+  title         String
+  smlImg        String
+  bigImg        String
+  upvotes       Upvote[]
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  CurrentStream CurrentStream?
+}
+
+model CurrentStream {
+  userId   String  @id
+  streamId String? @unique
+  stream   Stream? @relation(fields: [streamId], references: [id])
+  user     User    @relation(fields: [userId], references: [id])
 }
 
 model Upvote {
