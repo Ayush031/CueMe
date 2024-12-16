@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
         })
     }
     try {
-        const data = UpvoteSchema.parse(req.json());
+        const data = UpvoteSchema.parse(await req.json());
         await prismaClient.upvote.delete({
             where: {
                 streamId_userId: {
@@ -32,9 +32,12 @@ export async function POST(req: NextRequest) {
                 }
             }
         })
+        return NextResponse.json({
+            message:false
+        })
     } catch (e) {
         return NextResponse.json({
-            message: 'only single choice allowed'
+            message: 'Already Voted'
         }, {
             status: 403
         })

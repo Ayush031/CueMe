@@ -9,18 +9,10 @@ const UpvoteSchema = z.object({
 
 export async function POST(req: NextRequest) {
     const session = await getServerSession();
-    console.log(session);
     // TODO: replace with id here
-    if (!session?.user?.email) {
-        return NextResponse.json({
-            message: 'unauthenticated session'
-        }, {
-            status: 403
-        })
-    }
     const user = await prismaClient.user.findFirst({
         where: {
-            email: session?.user?.email
+            email: session?.user?.email ?? ""
         }
     });
     if (!user) {
@@ -31,16 +23,19 @@ export async function POST(req: NextRequest) {
         })
     }
     try {
-        const data = UpvoteSchema.parse(req.json());
+        const data = UpvoteSchema.parse(await req.json());
         await prismaClient.upvote.create({
             data: {
                 userId: user.id,
                 streamId: data.streamId
             }
         })
+        return NextResponse.json({
+            message: true
+        })
     } catch (e) {
         return NextResponse.json({
-            message: 'only single choice allowed'
+            message: 'Already Voted'
         }, {
             status: 403
         })
