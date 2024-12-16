@@ -47,13 +47,13 @@ export async function POST(req: NextRequest) {
                 status: 400
             });
         }
-
         const extractedId = getYoutubeVideoId(data.url);
+
         if (!extractedId) {
             return NextResponse.json({
                 message: "Could not extract YouTube video ID",
             }, {
-                status: 400
+                status: 404
             });
         }
 
@@ -62,11 +62,21 @@ export async function POST(req: NextRequest) {
         );
         const videoDetails = await response.data;
 
-
         // const videoDetails = await youtubesearchapi.GetVideoDetails(extractedId);
         // const thumbnails = videoDetails?.thumbnail.thumbnails;
         // thumbnails.sort((a: { width: number }, b: { height: number }) => a.width < b.height ? 1 : -1);
 
+        const existingStream = await prismaClient.stream.findFirst({
+            where: {
+                extractedId,
+                type: 'YOUTUBE',
+            }
+        });
+        if (existingStream) {
+            return NextResponse.json({
+                message: { title: "Stream already in queue", description: "Vibe Matched !!" },
+            })
+        }
         const stream = await prismaClient.stream.create({
             data: {
                 userId: data.creatorId,
@@ -82,13 +92,12 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({
-            message: "Stream added successfully",
+            message: { title: "Stream added successfully", description: "Enjoy your songs !!" },
             id: stream.id
         }, {
             status: 201
         });
     } catch (error) {
-
         return NextResponse.json({
             message: "Error while adding stream",
             error: error instanceof Error ? error.message : "Unknown error"

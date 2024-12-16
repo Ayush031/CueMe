@@ -49,30 +49,45 @@ export default function Dashboard() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`
-      );
-      const data = await response.json();
+      // const response = await fetch(
+      //   `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`
+      // );
 
-      if (!data.title) {
-        throw new Error("Invalid video URL");
-      }
+      // if (!data.title) {
+      //   throw new Error("Invalid video URL");
+      // }
 
-      const newVideo: Video = {
-        id: videoId,
-        title: data.title,
-        upvotes: 0,
-        smlImg: data.thumbnail_url || `/api/placeholder/120/90`,
-        bigImg: data.thumbnail_url || `/api/placeholder/480/360`,
-        hasUpvoted: false,
-      };
+      // const newVideo: Video = {
+      //   id: videoId,
+      //   title: data.title,
+      //   upvotes: 0,
+      //   smlImg: data.thumbnail_url || `/api/placeholder/120/90`,
+      //   bigImg: data.thumbnail_url || `/api/placeholder/480/360`,
+      //   hasUpvoted: false,
+      // };
 
-      setVideoQueue((prev) => [...prev, newVideo]);
+      // setVideoQueue((prev) => [...prev, newVideo]);
+
+      await axios
+        .post("/api/streams/", {
+          creatorId: "ca927a78-430e-4fe4-8203-350685cac0f1",
+          url: newVideoUrl,
+        })
+        .then((res) => {
+          const data = res.data;
+          toast({
+            title: data?.message?.title,
+            description: data?.message?.description,
+          });
+        });
       setNewVideoUrl("");
       setPreviewVideoId(null);
     } catch (error) {
       console.error("Error fetching video info:", error);
-      // Here you might want to show an error toast to the user
+      toast({
+        title: "Ahh! Error",
+        description: "Check your network & try again",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -147,9 +162,9 @@ export default function Dashboard() {
 
       {/* Current Video Player */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Now Playing</h2>
         {currentVideo ? (
           <div className="aspect-video">
+            <h2 className="text-xl font-semibold mb-2">Now Playing</h2>
             <iframe
               width="100%"
               height="100%"
@@ -159,9 +174,10 @@ export default function Dashboard() {
             />
           </div>
         ) : (
-          <div className="aspect-video bg-gray-100 flex items-center justify-center rounded">
-            <p className="text-gray-500">No video playing</p>
-          </div>
+          // <div className="aspect-video bg-gray-100 flex items-center justify-center rounded">
+          //   {/* <p className="text-gray-500">No video playing</p> */}
+          // </div>
+          <></>
         )}
       </div>
 

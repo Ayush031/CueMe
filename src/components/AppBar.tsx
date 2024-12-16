@@ -14,16 +14,15 @@ export const AppBar = () => {
         <p className="px-2 font-semibold">Cue Me</p>
       </Link>
       <nav className="ml-auto flex gap-4 sm:gap-6">
-        <Link
+        <div
           className="text-sm font-medium hover:underline underline-offset-4"
-          href="#"
         >
           {session.data?.user ? (
             <Button onClick={() => signOut()}>Sign Out</Button>
           ) : (
             <Button onClick={() => signIn()}>Sign In</Button>
           )}
-        </Link>
+        </div>
       </nav>
     </header>
   );
