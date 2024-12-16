@@ -3,7 +3,7 @@ import { prismaClient } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod";
 import axios from "axios";
-// @ts-ignore
+import { getServerSession } from "next-auth";
 // import youtubesearchapi from 'youtube-search-api';
 
 const CreatorSchema = z.object({
@@ -107,21 +107,54 @@ export async function POST(req: NextRequest) {
     }
 }
 
-// fetch streams
 export async function GET(req: NextRequest) {
-    const creatorId = req.nextUrl.searchParams.get("creatorId")
+    const creatorId = req.nextUrl.searchParams.get("creatorId");
+    const session = await getServerSession();
+
+    const user = await prismaClient.user.findFirst({
+        where: {
+            email: session?.user?.email ?? ""
+        }
+    })
+
+    if (!user) {
+        return NextResponse.json({
+            message: { title: "Unauthenticated", description: "Sign In to interact with the content" }
+        }, {
+            status: 403
+        })
+    }
+
     if (!creatorId) {
         return NextResponse.json({
-            message: "No creatorId found"
+            message: { title: "No creatorId found" }
         }, {
-            status: 400
+            status: 411
         })
     }
     const streams = await prismaClient.stream.findMany({
         where: {
             userId: creatorId
+        },
+        include: {
+            _count: { // add a key count 
+                select: { // and select 
+                    upvotes: true // the upvote column and count total
+                }
+            },
+            upvotes: { // checks if current user has voted or not 
+                where: {
+                    userId: user.id
+                }
+            }
         }
     })
 
-    return NextResponse.json({ streams });
+    return NextResponse.json({
+        streams: streams.map(({ _count, ...rest }) => ({
+            ...rest,
+            upvotes: _count.upvotes, // to reduce the count to root level
+            hasUpvoted: rest.upvotes.length ? true : false
+        }))
+    });
 }

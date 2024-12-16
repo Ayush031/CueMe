@@ -5,31 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export function ShareButton() {
+export function ShareButton({ creatorId }: { creatorId: string }) {
   const [isSharing, setIsSharing] = useState(false);
   const { toast } = useToast();
   const handleShare = async () => {
     setIsSharing(true);
-    const shareData = {
-      title: "Vote for the Next Song!",
-      text: "Join our stream and vote for the next song to be played!",
-      url: window.location.href,
-    };
-
+    const shareableLink = `${window.location.host}/creator/${creatorId}`;
     try {
-      if (navigator.share) {
-        await navigator.share(shareData);
+      navigator.clipboard.writeText(shareableLink).then(() => {
         toast({
-          title: "Shared successfully!",
-          description: "The link has been shared.",
+          title: "Link Copied to clipboard !!",
+          description: shareableLink,
         });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "Link copied!",
-          description: "The link has been copied to your clipboard.",
-        });
-      }
+      });
     } catch (err) {
       console.error("Error sharing:", err);
       toast({

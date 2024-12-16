@@ -33,10 +33,11 @@ export async function POST(req: NextRequest) {
             }
         })
         return NextResponse.json({
-            message:false
+            message: false
         })
-    } catch (e) {
+    } catch (error) {
         return NextResponse.json({
+            error,
             message: 'Already Voted'
         }, {
             status: 403

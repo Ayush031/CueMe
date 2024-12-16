@@ -33,8 +33,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             message: true
         })
-    } catch (e) {
+    } catch (error) {
         return NextResponse.json({
+            error,
             message: 'Already Voted'
         }, {
             status: 403
