@@ -139,7 +139,7 @@ export default function StreamView({
 
   const refreshStreams = async () => {
     try {
-      const res = await axios.get(`/api/streams/?creatorId=${creatorId}`);
+      const res = await axios.get(`/api/streams/?creatorId=${'c7bf6a76-3520-43ae-a7cb-89922d209ca0'}`);
       const data = await res?.data;
       if (Array.isArray(data.streams)) {
         setVideoQueue(
