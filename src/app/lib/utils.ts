@@ -1,1 +1,1 @@
-export const creatorId = process.env.NEXT_CREATOR_ID;
+export const creatorId = "c7bf6a76-3520-43ae-a7cb-89922d209ca0";
