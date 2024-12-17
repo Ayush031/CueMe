@@ -77,6 +77,22 @@ export async function POST(req: NextRequest) {
                 message: { title: "Stream already in queue", description: "Vibe Matched !!" },
             })
         }
+
+        const existingActiveStream = await prismaClient.stream.count({
+            where: {
+                userId: data.creatorId
+            }
+        })
+        if (existingActiveStream > 20) {
+            return NextResponse.json({
+                message: { title: "Queue Limit Reached !!", description: "You can vote from exisitng list !!" },
+            }, {
+                status: 411
+            })
+        }
+
+        const session = await getServerSession();
+
         const stream = await prismaClient.stream.create({
             data: {
                 userId: data.creatorId,

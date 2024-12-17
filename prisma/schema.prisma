@@ -11,28 +11,31 @@ model User {
   id            String          @id @default(uuid())
   email         String          @unique
   provider      Provider
-  // role     Role
-  streams       Stream[]
   upvotes       Upvote[]
   CurrentStream CurrentStream[]
+  streams       Stream[]        @relation("user")
+  // added         Stream[]        @relation("addedBy")
+  // role          Role
 }
 
 model Stream {
   id               String         @id @default(uuid())
+  title            String         @default("")
+  played           Boolean        @default(false)
+  active           Boolean        @default(true)
+  smlImg           String         @default("")
+  bigImg           String         @default("")
+  createdTimestamp DateTime       @default(now())
   type             StreamType
   url              String
   extractedId      String
   upvotes          Upvote[]
   userId           String
+  // addedById        String
   playedTimestamp  DateTime?
-  createdTimestamp DateTime       @default(now())
-  played           Boolean        @default(false)
-  active           Boolean        @default(true)
-  title            String         @default("")
-  smlImg           String         @default("")
-  bigImg           String         @default("")
-  user             User           @relation(fields: [userId], references: [id])
   CurrentStream    CurrentStream?
+  user             User           @relation(fields: [userId], references: [id], name: "user")
+  // addedBy          User           @relation(fields: [addedById], references: [id], name: "addedBy")
 }
 
 model CurrentStream {
