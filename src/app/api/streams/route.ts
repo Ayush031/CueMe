@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
             })
         }
 
-        const session = await getServerSession();
+        // const session = await getServerSession();
 
         const stream = await prismaClient.stream.create({
             data: {
